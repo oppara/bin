@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ $1 ]; then
+    find $1 -name '*.bak' -exec rm -f {} \;
+    else
+    find . -name '*.bak' -exec rm -f {} \;
+fi
+echo "done."

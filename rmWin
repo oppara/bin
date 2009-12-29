@@ -1,0 +1,11 @@
+#!/bin/sh
+# 共有サーバからコピーしてきたwindowsファイルのパーミッションを整える。
+
+d=`pwd`
+
+find "$d" -type f -name 'Thumbs.db' | xargs rm
+
+find "$d" -type f | xargs chmod 0644
+find "$d" -type d | xargs chmod 0755
+
+echo "done."
