@@ -1,0 +1,16 @@
+#!/bin/sh
+mi=/Applications/mi/mi.app/Contents/MacOS/mi
+#mi=mi
+if [ -s $1 ];then
+	open -a $mi $1
+else
+# 	TMP=$1.tmp
+# 	touch $TMP
+#  	echo '' > $TMP
+# 	iconv -c -f SHIFT-JIS -t EUC-JP $TMP | tr \\r \\n >$1
+# 	tr \\r \\n < $TMP >$1
+# 	unlink $TMP
+	touch $1
+	open -a $mi $1
+# 	osascript ~/bin/mi_euc.scpt
+fi
