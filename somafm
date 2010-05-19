@@ -1,0 +1,27 @@
+#!/bin/sh
+
+play()
+{
+  osascript -e 'tell app "iTunes" to open location "'${1}'"'
+  echo "play [ ${2} ]"
+}
+
+case $1 in
+  stop)
+    osascript -e 'tell app "iTunes" to stop'
+    echo 'iTunes stop.'
+  ;;
+  help)
+    echo "Usage: $0 {|help|stop|jazz|goa}"
+    exit 1
+  ;;
+  goa)
+    play 'http://voxsc1.somafm.com:8850' 'Suburbs of Goa'
+  ;;
+  jazz)
+    play 'http://voxsc1.somafm.com:8600' 'Sonic Universe'
+  ;;
+  *)
+    play 'http://streamer-ntc-aa06.somafm.com:80/stream/1073' 'indie pop rocks'
+  ;;
+esac
