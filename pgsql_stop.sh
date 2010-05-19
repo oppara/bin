@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/local/pgsql/bin/postmaster -D /usr/local/pgsql/data >/tmp/pg_logfile 2>&1 &
+/usr/local/pgsql/bin/pg_ctl stop  -D /usr/local/pgsql/data
