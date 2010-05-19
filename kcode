@@ -1,0 +1,280 @@
+#! /usr/bin/env perl
+#
+# $Id: kcode,v 0.1 2004/04/01 07:40:11 hirose31 Exp $
+#
+# Copyright (c) 2004 HIROSE, Masaaki. All rights reserved.
+#
+
+=head1 NAME
+
+B<kcode> - 各種文字コードを表示する
+
+=head1 SYNOPSIS
+
+B<kcode> [ B<-d> I<level> ] [ B<-x> ] [ B<-i> I<CES> ] [ B<-o> I<CES> ] I<char|hex>
+
+=head1 DESCRIPTION
+
+標準入力もしくはコマンドライン引数から、文字そのものか文字エンコーディ
+ングの16進数表記を受け取り、各種文字エンコーディングでの16進数表記と
+Unicode, IncのUnihan DatabaseのURLを出力する。
+
+出力する16進数表記の文字エンコーディングの種類は以下の通り。
+
+  Shift_JIS
+  EUC-JP
+  ISO-2022-JP
+  UCS-2
+  UTF-8
+
+グリフを確認するにはUnihan DatabaseのURLにアクセスすればよい。
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-x>
+
+入力を、文字ではなく文字エンコーディングの16進数表記として処理する。
+
+=item B<-i> I<CES>
+
+入力文字の文字エンコーディングの指定。省略時はeucとなる。
+
+=item B<-o> I<CES>
+
+出力文字列の文字エンコーディングの指定。省略時はeucとなる。
+
+=item B<-d> I<level>
+
+デバッグモード。デバッグレベルを数値(1か2)で指定する。
+
+=item B<-h>
+
+ヘルプを表示して終了する。
+
+=item B<CES>
+
+文字エンコーディング(Character Encoding Scheme)。
+以下のもののいずれか。
+
+  sjis
+  euc
+  jis
+  ucs2
+  utf8
+
+=item B<char>
+
+文字そのもの。
+
+=item B<hex>
+
+文字の16進数表記。
+
+=back
+
+=head1 EXAMPLES
+
+=head2 Shift_JISで『あ』のコードってなんだっけ?
+
+  echo 'あ' | kcode
+
+=head2 UCS-2のU+3042ってどの文字だっけ?
+
+  kcode -i ucs2 -x 3042
+
+=cut
+
+use strict;
+use Getopt::Std;
+
+my $RCSID = q$Id: kcode,v 0.1 2004/04/01 07:40:11 hirose31 Exp $;
+my $REVISION = $RCSID =~ /,v ([\d.]+)/ ? $1 : 'unknown';
+my $VERSION = '1.0';
+my $PROG = substr($0, rindex($0, '/')+1);
+
+my $Debug = 0;
+
+sub dprint (@) {
+	return unless $Debug;
+	my @m = @_;
+	chomp @m;
+	print STDERR 'DEBUG: ', @m,"\n";
+}
+
+sub dprint2(@) {
+	dprint @_ if $Debug >= 2;
+}
+
+sub usage() {
+	my $mesg = shift;
+
+	print "[ERROR] $mesg\n" if $mesg;
+	print "usage:\n";
+	print "  $PROG [ -d level ] [-x] [-i CES] [-o CES] char|hex\n";
+	print "
+    -x        assume input is hexadecimal.
+    -i CES    set input character encoding to CES.
+    -o CES    set output character encoding to CES.
+       CES = sjis | euc | jis | ucs2 | utf8
+    -d level  set debug level.
+    -h        show this help.
+
+v$VERSION (Rev $REVISION)
+";
+	exit 1;
+}
+
+use constant ENC_SJIS => 0;
+use constant ENC_EUC  => 1;
+use constant ENC_JIS  => 2;
+use constant ENC_UCS2 => 3;
+use constant ENC_UTF8 => 4;
+
+our $Converter;
+our @Encodings;
+our $From_Enc;
+our $To_Enc;
+
+# --------------------------------------------------------------------
+# M A I N
+# --------------------------------------------------------------------
+
+MAIN: {
+	my %opt;
+	getopts('d:xi:o:',\%opt) or &usage();
+	$Debug = exists $opt{'d'} ? ( $opt{'d'} or 1 ) : 0;
+	unless ($Debug =~ /^\d+$/) {
+		&usage("invalid argument -d=$opt{'d'}");
+	}
+	dprint "DEBUG MODE LEVEL=$Debug";
+
+	my $k_from_to = sub {};
+ LOAD: {
+		eval q( require Encode );
+		unless ($@) {
+			dprint "load Encode";
+			$Converter = 'Encode';
+			$k_from_to = \&_kft_encode;
+			@Encodings = qw( cp932 euc-jp iso-2022-jp ucs-2be utf8 );
+		} else {
+			eval q( require Jcode );
+			unless ($@) {
+				dprint "load Jcode";
+				$Converter = 'Jcode';
+				$k_from_to = \&_kft_jcode;
+				@Encodings = qw( sjis euc jis ucs2 utf8 );
+			} else {
+				die "failed to load Encode and Jcode.";
+			}
+		}
+	}
+
+	if (exists $opt{'i'}) {
+		$From_Enc = &select_enc($opt{'i'});
+	} else {
+		$From_Enc = $Encodings[ENC_EUC];
+	}
+	dprint "From_Enc=$From_Enc";
+
+	if (exists $opt{'o'}) {
+		$To_Enc = &select_enc($opt{'o'});
+	} else {
+		$To_Enc = $Encodings[ENC_EUC];
+	}
+	dprint "To_Enc=$To_Enc";
+
+	# memo あ: U+3042 e3 81 82(utf8) / a4 a2 (euc) / 82 a0 (sjis)
+	my @in = @ARGV ? @ARGV : map { chomp($_); $_; } <>;
+	foreach my $inx (@in) {
+		my $ins = exists $opt{'x'} ? pack('H*', $inx) : $inx;
+		# header
+		printf "%-14s: %-18s (%s)\n", $From_Enc, $inx, &{$k_from_to}($ins, $From_Enc, $To_Enc);
+		print '='x70,"\n";
+
+		# all charset
+		foreach my $cs (@Encodings) {
+			printf "%-14s: %-18s %s\n", $cs, &hexdump(&{$k_from_to}($ins, $From_Enc, $cs));
+		}
+		printf "http://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=%s\n",
+			&hexdump(&{$k_from_to}($ins, $From_Enc, $Encodings[ENC_UCS2]));
+		print "\n";
+	}
+	printf "%70s\n", "using $Converter";
+
+	exit 0;
+}
+
+# --------------------------------------------------------------------
+# S U B  R O U T I N E
+# --------------------------------------------------------------------
+
+sub _kft_encode {
+	my $s = shift;
+	my $from_code = shift;
+	my $to_code = shift;
+
+	my $tmp = $s;
+	Encode::from_to($tmp, $from_code, $to_code);
+	return $tmp;
+}
+
+sub _kft_jcode {
+	my $s = shift;
+	my $from_code = shift;
+	my $to_code = shift;
+
+	return Jcode->new($s, $from_code)->$to_code;
+}
+
+sub hexdump {
+	my $s = shift;
+	my $h = lc(unpack('H*', $s));
+	my @ret;
+	push @ret, uc($h);
+	$h =~ s/(..)/\\x$1/g;
+	push @ret, '"'.$h.'"';
+	return wantarray ? @ret : $ret[0];
+}
+
+sub select_enc {
+	my $enc = shift;
+
+	foreach ($enc) {
+		/(?:s|shift|shift_)jis/i
+			and do { return $Encodings[ENC_SJIS]; };
+		/(?:cp932|ms932|windowd-31j)/i
+			and do { return $Encodings[ENC_SJIS]; };
+		/euc(?:jp|-jp|)/i
+			and do { return $Encodings[ENC_EUC];  };
+		/(?:jis|iso-2022-jp)/i
+			and do { return $Encodings[ENC_JIS];  };
+		/ucs(?:2|-2)/i
+			and do { return $Encodings[ENC_UCS2]; };
+		/utf(?:8|-8)/i
+			and do { return $Encodings[ENC_UTF8]; };
+		/.*/ and do { die "unknown encoding: $enc"; };
+	}
+}
+
+__END__
+
+=head1 SEE ALSO
+
+L<Module::Jcode>,
+L<Module::Encode>
+
+L<http://www.irori.org/tool/kcode.html>
+
+=head1 AUTHOR
+
+HIROSE, Masaaki E<lt>hirose31@irori.orgE<gt>
+
+=cut
+
+# for Emacsen
+# Local Variables:
+# tab-width: 4
+# coding: euc-jp
+# End:
