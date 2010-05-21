@@ -1,4 +1,7 @@
-PREFIX='/usr/local/mysql_type/'
+#!/bin/sh
+
+PREFIX='/usr/local/mysql_versions/'
+PWD=`pwd`
 
 build() {
 make distclean
@@ -17,16 +20,20 @@ make distclean
   --without-debug \
   --without-man \
   --without-docs \
-  --without-bench \
+  --with-unix-socket-path=/tmp/${1}.sock
    && make 
 }
 
 VER=`basename $PWD`
 PREFIX=${PREFIX}${VER}
 
-echo "PREFIX => ${PREFIX}"
-
 build ${PREFIX} 
 
+if [ -e ${PREFIX} -a -d ${PREFIX} ]
+then
+  sudo rm -rf ${PREFIX}
+fi
 sudo mkdir -p ${PREFIX} 
-# sudo makie install
+
+echo "\nPREFIX => ${PREFIX}"
+echo 'TYPE: sudo make install'
