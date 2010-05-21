@@ -1,4 +1,7 @@
-PREFIX='/usr/local/postgresql_type/'
+#!/bin/sh
+
+PREFIX='/usr/local/'
+PWD=`pwd`
 
 build() {
 make distclean
@@ -11,12 +14,17 @@ make distclean
    && make 
 }
 
+
 VER=`basename $PWD`
 PREFIX=${PREFIX}${VER}
 
-echo "PREFIX => ${PREFIX}"
-
 build ${PREFIX} 
 
+if [ -e ${PREFIX} -a -d ${PREFIX} ]
+then
+  sudo rm -rf ${PREFIX}
+fi
 sudo mkdir -p ${PREFIX} 
-# sudo makie install
+
+echo "\nPREFIX => ${PREFIX}"
+echo 'TYPE: sudo make install'
