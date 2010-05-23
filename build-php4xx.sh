@@ -1,48 +1,68 @@
-buildphp() {
-PREFIX=/usr/local/php_type/$1
+#!/bin/sh
 
-make distclean
-EXTENSION_DIR=${PREFIX}lib/extensions/
-export EXTENSION_DIR
+PREFIX='/usr/local/'
+PWD=`pwd`
+SO='/usr/libexec/apache2/libphp4.so'
 
-./configure \
-  --prefix=${PREFIX} \
+build() {
+  make distclean
+
+  EXTENSION_DIR=${1}lib/extensions/
+  export EXTENSION_DIR
+
+  CFLAGS='-arch x86_64 -g -Os -pipe -no-cpp-precomp'
+  CCFLAGS='-arch x86_64 -g -Os -pipe'
+  CXXFLAGS='-arch x86_64 -g -Os -pipe'
+  LDFLAGS='-arch x86_64 -bind_at_load'
+  export CFLAGS CXXFLAGS LDFLAGS CCFLAGS
+
+  EXTRA_LIBS='-lresolv'
+  export EXTRA_LIBS
+
+  ./configure \
+  --prefix=${1} \
   --with-apxs2=/usr/sbin/apxs \
-  --with-config-file-path=${PREFIX}/etc \
-  --with-pear=${PREFIX}/pear \
+  --with-config-file-path=${1}/etc \
+  --with-pear=${1}/pear \
   --enable-cli \
   --enable-force-cgi-redirect \
   --enable-mbstring \
   --enable-mbregex \
   --enable-zend-multibyte \
+  --with-iconv-dir=/usr/local \
+  --with-gettext=/usr/local \
   --enable-memory-limit \
   --enable-sockets \
   --enable-ftp \
   --with-curl \
-  --with-iconv=/opt/local \
+  --enable-exif \
+  --with-gd \
+  --with-jpeg-dir=/usr/local \
+  --with-png-dir=/usr/local \
+  --with-freetype-dir=/usr/local \
+  --with-t1lib=/usr/local \
+  --with-ttf \
+  --enable-gd-native-ttf \
+  --enable-gd-jis-conv \
   --with-mysql=/usr/local/mysql \
-  --with-pgsql=/usr/local/pgsql \
-  --with-xpm-dir \
+  --with-pgsql=/usr/local/postgresql \
   --enable-xml \
   --with-xsl \
   --with-dom \
   --with-xmlrpc \
-  --with-expat-dir=/opt/local/ \
+  --with-mcrypt \
+  --enable-zip \
   --with-zlib \
   --with-bz2 \
-  --with-gettext=/opt/local/ \
-  --enable-exif \
-  --with-gd='/opt/local/' \
-  --with-freetype \
-  --with-ttf \
-  --with-jpeg-dir='/opt/local/' \
-  --with-png-dir='/opt/local/' \
-  --enable-gd-native-ttf \
-  --enable-gd-jis-conv \
-  --with-freetype-dir='/opt/local/' \
-  --with-mcrypt='/usr/local' \
-   && make all
+  --with-zlib-dir=/usr \
+  && make all
 }
-PHPVER=`basename $PWD`
 
-buildphp ${PHPVER} 
+
+VER=`basename $PWD`
+PREFIX=${PREFIX}${VER}
+
+build ${PREFIX} 
+
+echo "\nPREFIX => ${PREFIX}"
+echo 'TYPE: sudo make install'
