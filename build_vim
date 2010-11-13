@@ -83,7 +83,7 @@ cd ..
 cat patches/${VER}.* | patch -p0
 
 
-./configure --enable-multibyte --enable-xim --enable-fontset --with-features=big --prefix=${PREFIX}
+./configure --disable-selinux --enable-multibyte --enable-xim --enable-fontset --with-features=big --prefix=${PREFIX}
 make
 make install
 
