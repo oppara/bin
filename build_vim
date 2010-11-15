@@ -55,16 +55,16 @@ echo 'do!'
 
 
 _TAR="vim-${VER}.tar.bz2"
-_EXTRA="vim-${VER}-extra.tar.gz"
-_LANG="vim-${VER}-lang.tar.gz"
+# _EXTRA="vim-${VER}-extra.tar.gz"
+# _LANG="vim-${VER}-lang.tar.gz"
 
 [ -e ${_TAR} ]   || wget "${URL}/unix/${_TAR}"
-[ -e ${_EXTRA} ] || wget "${URL}/extra/${_EXTRA}"
-[ -e ${_LANG} ]  || wget "${URL}/extra/${_LANG}"
+# [ -e ${_EXTRA} ] || wget "${URL}/extra/${_EXTRA}"
+# [ -e ${_LANG} ]  || wget "${URL}/extra/${_LANG}"
 
 [ -e ${_TAR} ] && tar jxf ${_TAR}
-[ -e ${_EXTRA} ] && tar zxf ${_EXTRA}
-[ -e ${_LANG} ] && tar zxf ${_LANG}
+# [ -e ${_EXTRA} ] && tar zxf ${_EXTRA}
+# [ -e ${_LANG} ] && tar zxf ${_LANG}
 
 
 vim_dir=`ls -l|grep "^d"|awk '{print $9}'`
