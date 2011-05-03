@@ -8,9 +8,8 @@ make distclean
 ./configure \
   CFLAGS=-O2 \
   --prefix=${1} \
-  --with-rendezvous \
-  --enable-multibyte \
-  --enable-syslog \
+  --with-bonjour \
+  --with-openssl  \
    && make 
 }
 
