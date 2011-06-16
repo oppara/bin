@@ -8,22 +8,25 @@ make distclean
 ./configure \
   CFLAGS=-O2 \
   --prefix=${1} \
+  --with-rendezvous \
+  --enable-multibyte \
+  --enable-syslog \
   --with-bonjour \
   --with-openssl  \
-   && make 
+   && make
 }
 
 
 VER=`basename $PWD`
 PREFIX=${PREFIX}${VER}
 
-build ${PREFIX} 
+build ${PREFIX}
 
 if [ -e ${PREFIX} -a -d ${PREFIX} ]
 then
   sudo rm -rf ${PREFIX}
 fi
-sudo mkdir -p ${PREFIX} 
+sudo mkdir -p ${PREFIX}
 
 echo "\nPREFIX => ${PREFIX}"
 echo 'TYPE: sudo make install'
