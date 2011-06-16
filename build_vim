@@ -1,90 +1,42 @@
 #!/bin/sh
 
-VER=7.3
-
 PREFIX="${HOME}/local"
-HOST="ftp://ftp.vim.org/"
-URL="${HOST}pub/vim"
-PATCHS_DIR="pub/vim/patches/${VER}"
-PATCH_LIST='list.txt'
-VER_FILE='patch_version'
+BRANCH="vim73"
+SRC="${HOME}/src/vim"
 
-DIR="${HOME}/src/vim/${VER}"
+ORG_LANG=`echo $LANG`
+export LANG=C
 
-
-LANG=ja_JP.UTF-8
-export LANG
-
-
-[ -d $DIR ] || mkdir -p $DIR
-cd $DIR
-
-get_latest_patch_no(){
-  cmd="ls ${VER}*"
-  ftp -n ${HOST}>${PATCH_LIST} << _EOF_
-cd /${PATCHS_DIR}
-${cmd}
-bye
-_EOF_
-
-  awk '{print $9}' $PATCH_LIST|grep -v gz|tail -n 1|cut -d . -f 3
-}
-
-get_current_patch_no() {
-  if [ -e ${VER_FILE} ]; then
-    current=`cat ${VER_FILE}`
-    echo ${current} 
-  else
-    echo 0 
-  fi
-}
-
-latest=`get_latest_patch_no`
-current=`get_current_patch_no`
-
-echo "current: ${current}"
-echo "latest:  ${latest}"
-
-if [ ${current} -ge ${latest} ]
-then
-  echo 'up to date!'
-  exit 0
+if [ -e ${SRC} ]; then
+  rm -rf ${SRC}
 fi
 
-echo 'do!'
+hg clone https://vim.googlecode.com/hg ${SRC}
 
+cd ${SRC}
 
-_TAR="vim-${VER}.tar.bz2"
-_EXTRA="vim-${VER}-extra.tar.gz"
-_LANG="vim-${VER}-lang.tar.gz"
+hg update $BRANCH
+hg pull
 
-[ -e ${_TAR} ]   || wget "${URL}/unix/${_TAR}"
-[ -e ${_EXTRA} ] || wget "${URL}/extra/${_EXTRA}"
-[ -e ${_LANG} ]  || wget "${URL}/extra/${_LANG}"
+./configure --prefix=${PREFIX} \
+--with-features=big \
+--enable-multibyte \
+--enable-xim \
+--enable-fontset \
+--enable-rubyinterp \
+--disable-selinux \
+--disable-gui \
+--without-x
 
-[ -e ${_TAR} ] && tar jxf ${_TAR}
-[ -e ${_EXTRA} ] && tar zxf ${_EXTRA}
-[ -e ${_LANG} ] && tar zxf ${_LANG}
-
-
-vim_dir=`ls -l|grep "^d"|awk '{print $9}'`
-cd $vim_dir
-
-
-[ -d patches ] || mkdir patches
-cd patches
-
-if [ $current = 0 ];then
-  current='001'
-fi
-curl -O "${HOST}${PATCHS_DIR}/${VER}.[${current}-${latest}]"
-
-cd ..
-cat patches/${VER}.* | patch -p0
-
-
-./configure --enable-multibyte --enable-xim --enable-fontset --with-features=big --prefix=${PREFIX}
+make clean
 make
-make install
+# make install
 
-echo ${latest} > $VER_FILE
+export LANG="${ORG_LANG}"
+
+cat<<EOT
+------------------------------
+done.
+make install
+EOT
+
