@@ -3,70 +3,94 @@
 #
 # phpの切り替え
 #
+# pearのエイリアス設定(.zshrc or .bashrc)
+# alias pear='pear -C /usr/local/php/etc/pear.conf $@'
+#
+
+PHP_LIB="/usr/local"
+PHP_LINK="${PHP_LIB}/php"
 
 PHP=`which php`
-VERSION=`$PHP -v  | tr '\n' '\040' | awk '{print $2}'`
-VERSION=`$PHP -v`
-MAJOR_VERSION=`$PHP -v  | tr '\n' '\040' | awk '{print $2}'|awk -F . '{print $1}'`
-
-PHP_LINK="/usr/local/php"
-PHP_4="/usr/local/php-4.4.9"
-PHP_52="/usr/local/php-5.2.6"
-PHP_53="/usr/local/php-5.3.5"
-
-NEXT_VERSION=4
-if [ $MAJOR_VERSION -eq 4 ]; then
-  NEXT_VERSION=5
-  PHP_PATH=$PHP_52
-fi
+CURRENT_VERSION=`"$PHP" -v  | tr '\n' '\040' | awk '{print $2}'`
 
 
-if [ $NEXT_VERSION -eq 4 ]; then
 cat <<_EOF_
 ------------------------------------------------------------
-${VERSION}
-------------------------------------------------------------
-change PHP${NEXT_VERSION}? (y|n);
+current version php-${CURRENT_VERSION}.  choose from below...
 ------------------------------------------------------------
 _EOF_
-else
-cat <<_EOF_
-------------------------------------------------------------
-${VERSION}
-------------------------------------------------------------
-change PHP${NEXT_VERSION}
-[2] php-5.2.6
-[3] php-5.3.5
-------------------------------------------------------------
-_EOF_
-fi
 
-sw_php()
-{
-    echo "swtch php${1}..."
+
+find_phps() {
+  find $PHP_LIB -name 'php-*' -depth 1 2>/dev/null
+}
+
+sw_php() {
+    echo "============================================================"
+    echo "swtch to php-${1}..."
+    echo "sudo ln -s ${2} ${PHP_LINK}"
     sudo rm ${PHP_LINK}
     sudo ln -s ${2} ${PHP_LINK}
-    echo "restart apache..."
+    echo "restart apache"
     APACHE=`which apachectl`
     sudo ${APACHE} restart
+    echo "done."
     echo "============================================================"
     $PHP -v
     echo "============================================================"
 }
 
+get_ver() {
+  ver=`echo "$1" | tr '/-' '\040' | awk '{print $4}'`
+}
+
+
+cnt=0;
+find_phps | while read line
+do
+  get_ver "$line"
+  if [ "$ver" = "$CURRENT_VERSION" ]; then
+    continue
+  fi
+  echo "[${cnt}] ${ver}"
+  cnt=`expr $cnt + 1`
+done
+echo "[q] quit"
+
+
 read ans
-case $ans in
-  y|Y)
-    sw_php ${NEXT_VERSION} ${PHP_4}
-    ;;
-  2)
-    sw_php ${NEXT_VERSION} ${PHP_52}
-    ;;
-  3)
-    sw_php ${NEXT_VERSION} ${PHP_53}
-    ;;
-  *)
-    echo  "no swtch."
-    exit 0
-    ;;
-esac
+
+
+if [ "$ans" = "q" ]; then
+  exit 0
+fi
+
+
+done=""
+cnt=0;
+for line in `find_phps`
+do
+  get_ver "$line"
+  if [ "$ver" = "$CURRENT_VERSION" ]; then
+    continue
+  fi
+  if [ "$cnt" = "$ans" ]; then
+    sw_php $ver $line
+    done="done"
+    break
+  fi
+  cnt=`expr $cnt + 1`
+done
+
+if [ "$done" = "done" ]; then
+  exit 0
+fi
+
+
+cat <<_EOF_
+
+////////////////////////////////////////////////////////////
+         nothing happens. chose undefined element.
+////////////////////////////////////////////////////////////
+_EOF_
+exit 1
