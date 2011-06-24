@@ -20,9 +20,12 @@ current version php-${CURRENT_VERSION}.  choose from below...
 ------------------------------------------------------------
 _EOF_
 
-
 find_phps() {
-  find $PHP_LIB -name 'php-*' -depth 1 2>/dev/null
+  if [ 'Darwin' = `uname` ]; then
+    find $PHP_LIB -name 'php-*' -depth 1 2>/dev/null
+  else
+    find $PHP_LIB -name 'php-*' -maxdepth 1 2>/dev/null
+  fi
 }
 
 sw_php() {
