@@ -16,7 +16,7 @@ CURRENT_VERSION=`"$PHP" -v  | tr '\n' '\040' | awk '{print $2}'`
 
 cat <<_EOF_
 ------------------------------------------------------------
-current version php-${CURRENT_VERSION}.  choose from below...
+current version php-${CURRENT_VERSION}.  choose below...
 ------------------------------------------------------------
 _EOF_
 
@@ -58,7 +58,7 @@ do
   echo "[${cnt}] ${ver}"
   cnt=`expr $cnt + 1`
 done
-echo "[q] quit"
+echo "[q] Quit"
 
 
 read ans
