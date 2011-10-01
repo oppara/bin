@@ -1,0 +1,3 @@
+ #!/bin/sh
+ all_proxy= curl -s "http://tinyurl.com/create.php?url=$@" | grep "<blockquote><b>http://tinyurl.com/" | perl -p -e 's/<blockquote><b>//; s/<\/b>.*//;'
+ echo $all_proxy
