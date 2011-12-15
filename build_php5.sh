@@ -35,6 +35,7 @@ build() {
   --enable-sockets \
   --enable-ftp \
   --with-curl \
+  --with-openssl \
   --with-mysql='/usr/local/mysql' \
   --with-mysqli='/usr/local/mysql/bin/mysql_config' \
   --enable-pdo \
