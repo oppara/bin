@@ -39,6 +39,7 @@ build() {
   --with-mysqli='/usr/local/mysql/bin/mysql_config' \
   --enable-pdo \
   --with-pdo-mysql='/usr/local/mysql' \
+  --with-pdo-pgsql=/usr/local/postgresql \
   --with-pgsql=/usr/local/postgresql \
   --enable-sqlite-utf8 \
   --enable-zip \
@@ -65,13 +66,13 @@ build() {
 VER=`basename $PWD`
 PREFIX=${PREFIX}${VER}
 
-build ${PREFIX} 
+build ${PREFIX}
 
 # if [ -e ${PREFIX} -a -d ${PREFIX} ]
 # then
   # sudo rm -rf ${PREFIX}
 # fi
-# sudo mkdir -p ${PREFIX} 
+# sudo mkdir -p ${PREFIX}
 
 # if [ -e ${SO} ]
 # then
