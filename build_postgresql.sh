@@ -13,6 +13,7 @@ make distclean
   --enable-syslog \
   --with-bonjour \
   --with-openssl  \
+  --with-libxml \
    && make
 }
 
@@ -30,3 +31,7 @@ sudo mkdir -p ${PREFIX}
 
 echo "\nPREFIX => ${PREFIX}"
 echo 'TYPE: sudo make install'
+
+# /path/to/bin/postgres -D /path/to/data
+    # or
+# /path/to/bin/pg_ctl -D /path/to/data -l logfile start
