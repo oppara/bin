@@ -15,10 +15,7 @@ else
 fi
 
 ./configure --prefix=${PREFIX} \
---with-features=big \
---enable-multibyte \
---enable-xim \
---enable-fontset \
+--with-features=huge \
 --disable-selinux \
 --disable-gui \
 --with-tlib=ncurses \
