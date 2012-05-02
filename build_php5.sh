@@ -36,10 +36,10 @@ build() {
   --enable-ftp \
   --with-curl \
   --with-openssl \
-  --with-mysql='/usr/local/mysql' \
-  --with-mysqli='/usr/local/mysql/bin/mysql_config' \
+  --with-mysql=/usr/local/mysql \
+  --with-mysqli=/usr/local/mysql/bin/mysql_config \
   --enable-pdo \
-  --with-pdo-mysql='/usr/local/mysql' \
+  --with-pdo-mysql=/usr/local/mysql \
   --with-pdo-pgsql=/usr/local/postgresql \
   --with-pgsql=/usr/local/postgresql \
   --enable-sqlite-utf8 \
