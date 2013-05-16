@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-B<kcode> - �Ƽ�ʸ�������ɤ�ɽ������
+B<kcode> - 各種文字コードを表示する
 
 =head1 SYNOPSIS
 
@@ -15,11 +15,11 @@ B<kcode> [ B<-d> I<level> ] [ B<-x> ] [ B<-i> I<CES> ] [ B<-o> I<CES> ] I<char|h
 
 =head1 DESCRIPTION
 
-ɸ�����Ϥ⤷���ϥ��ޥ�ɥ饤��������顢ʸ�����Τ�Τ�ʸ�����󥳡��ǥ�
-�󥰤�16�ʿ�ɽ���������ꡢ�Ƽ�ʸ�����󥳡��ǥ��󥰤Ǥ�16�ʿ�ɽ����
-Unicode, Inc��Unihan Database��URL����Ϥ��롣
+標準入力もしくはコマンドライン引数から、文字そのものか文字エンコーディ
+ングの16進数表記を受け取り、各種文字エンコーディングでの16進数表記と
+Unicode, IncのUnihan DatabaseのURLを出力する。
 
-���Ϥ���16�ʿ�ɽ����ʸ�����󥳡��ǥ��󥰤μ���ϰʲ����̤ꡣ
+出力する16進数表記の文字エンコーディングの種類は以下の通り。
 
   Shift_JIS
   EUC-JP
@@ -27,7 +27,7 @@ Unicode, Inc��Unihan Database��URL����Ϥ��롣
   UCS-2
   UTF-8
 
-����դ��ǧ����ˤ�Unihan Database��URL�˥�����������Ф褤��
+グリフを確認するにはUnihan DatabaseのURLにアクセスすればよい。
 
 =head1 OPTIONS
 
@@ -35,28 +35,28 @@ Unicode, Inc��Unihan Database��URL����Ϥ��롣
 
 =item B<-x>
 
-���Ϥ�ʸ���ǤϤʤ�ʸ�����󥳡��ǥ��󥰤�16�ʿ�ɽ���Ȥ��ƽ������롣
+入力を、文字ではなく文字エンコーディングの16進数表記として処理する。
 
 =item B<-i> I<CES>
 
-����ʸ����ʸ�����󥳡��ǥ��󥰤λ��ꡣ��ά����euc�Ȥʤ롣
+入力文字の文字エンコーディングの指定。省略時はeucとなる。
 
 =item B<-o> I<CES>
 
-����ʸ�����ʸ�����󥳡��ǥ��󥰤λ��ꡣ��ά����euc�Ȥʤ롣
+出力文字列の文字エンコーディングの指定。省略時はeucとなる。
 
 =item B<-d> I<level>
 
-�ǥХå��⡼�ɡ��ǥХå���٥�����(1��2)�ǻ��ꤹ�롣
+デバッグモード。デバッグレベルを数値(1か2)で指定する。
 
 =item B<-h>
 
-�إ�פ�ɽ�����ƽ�λ���롣
+ヘルプを表示して終了する。
 
 =item B<CES>
 
-ʸ�����󥳡��ǥ���(Character Encoding Scheme)��
-�ʲ��Τ�ΤΤ����줫��
+文字エンコーディング(Character Encoding Scheme)。
+以下のもののいずれか。
 
   sjis
   euc
@@ -66,21 +66,21 @@ Unicode, Inc��Unihan Database��URL����Ϥ��롣
 
 =item B<char>
 
-ʸ�����Τ�Ρ�
+文字そのもの。
 
 =item B<hex>
 
-ʸ����16�ʿ�ɽ����
+文字の16進数表記。
 
 =back
 
 =head1 EXAMPLES
 
-=head2 Shift_JIS�ǡؤ��٤Υ����ɤäƤʤ���ä�?
+=head2 Shift_JISで『あ』のコードってなんだっけ?
 
-  echo '��' | kcode
+  echo 'あ' | kcode
 
-=head2 UCS-2��U+3042�äƤɤ�ʸ�����ä�?
+=head2 UCS-2のU+3042ってどの文字だっけ?
 
   kcode -i ucs2 -x 3042
 
@@ -174,18 +174,18 @@ MAIN: {
 	if (exists $opt{'i'}) {
 		$From_Enc = &select_enc($opt{'i'});
 	} else {
-		$From_Enc = $Encodings[ENC_EUC];
+		$From_Enc = $Encodings[ENC_UTF8];
 	}
 	dprint "From_Enc=$From_Enc";
 
 	if (exists $opt{'o'}) {
 		$To_Enc = &select_enc($opt{'o'});
 	} else {
-		$To_Enc = $Encodings[ENC_EUC];
+		$To_Enc = $Encodings[ENC_UTF8];
 	}
 	dprint "To_Enc=$To_Enc";
 
-	# memo ��: U+3042 e3 81 82(utf8) / a4 a2 (euc) / 82 a0 (sjis)
+	# memo あ: U+3042 e3 81 82(utf8) / a4 a2 (euc) / 82 a0 (sjis)
 	my @in = @ARGV ? @ARGV : map { chomp($_); $_; } <>;
 	foreach my $inx (@in) {
 		my $ins = exists $opt{'x'} ? pack('H*', $inx) : $inx;
