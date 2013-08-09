@@ -10,12 +10,12 @@ build() {
   EXTENSION_DIR=${1}lib/extensions/
   export EXTENSION_DIR
 
-  CFLAGS=-I/opt/local/include  LDFLAGS="-L/opt/local/lib"
   CFLAGS='-arch x86_64 -g -Os -pipe -no-cpp-precomp'
   CCFLAGS='-arch x86_64 -g -Os -pipe'
   CXXFLAGS='-arch x86_64 -g -Os -pipe'
-  LDFLAGS='-arch x86_64 -bind_at_load'
-  export CFLAGS CXXFLAGS LDFLAGS CCFLAGS
+  LDFLAGS='-arch x86_64 -bind_at_load -L/usr/local/opt/libtool/lib -L/usr/local/opt/openssl/lib'
+  CPPFLAGS='-I/usr/local/opt/libtool/include -I/usr/local/opt/openssl/include'
+  export CFLAGS CXXFLAGS LDFLAGS CCFLAGS CPPFLAGS
 
   EXTRA_LIBS='-lresolv'
   export EXTRA_LIBS
@@ -36,23 +36,22 @@ build() {
   --enable-ftp \
   --with-curl \
   --enable-exif \
-  --with-mysql=/usr/local/mysql \
-  --with-pgsql=/usr/local/postgresql \
+  --with-mysql=$(brew --prefix mysql) \
+  --with-pgsql=$(brew --prefix postgresql) \
   --enable-zip \
   --with-bz2 \
   --with-zlib \
   --with-zlib-dir=/usr/local \
-  --with-gettext=/usr/local \
-  --with-mcrypt=/usr/local \
+  --with-gettext=$HOME/usr \
+  --with-mcrypt=$(brew --prefix mcrypt) \
   --with-xmlrpc \
   --enable-xml \
   --with-xsl \
   --with-dom \
   --with-gd \
-  --with-jpeg-dir=/usr/local \
-  --with-png-dir=/usr/local \
-  --with-freetype-dir=/usr/local \
-  --with-t1lib=/usr/local \
+  --with-jpeg-dir=$(brew --prefix jpeg) \
+  --with-png-dir=$(brew --prefix libpng) \
+  --with-freetype-dir=$(brew --prefix freetype) \
   --enable-gd-native-ttf \
   --enable-gd-jis-conv \
   --with-ttf \
