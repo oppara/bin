@@ -16,8 +16,9 @@ build() {
   CFLAGS='-arch x86_64 -g -Os -pipe -no-cpp-precomp'
   CCFLAGS='-arch x86_64 -g -Os -pipe'
   CXXFLAGS='-arch x86_64 -g -Os -pipe'
-  LDFLAGS='-arch x86_64 -bind_at_load'
-  export CFLAGS CXXFLAGS LDFLAGS CCFLAGS
+  LDFLAGS='-arch x86_64 -bind_at_load -L/usr/local/opt/libtool/lib -L/usr/local/opt/openssl/lib'
+  CPPFLAGS='-I/usr/local/opt/libtool/include -I/usr/local/opt/openssl/include'
+  export CFLAGS CXXFLAGS LDFLAGS CCFLAGS CPPFLAGS
 
   EXTRA_LIBS='-lresolv'
   export EXTRA_LIBS
@@ -31,11 +32,11 @@ build() {
   --enable-mbstring \
   --enable-mbregex \
   --enable-zend-multibyte \
-  --with-iconv-dir=/usr \
+  --with-iconv-dir=/usr/lib \
   --enable-sockets \
   --enable-ftp \
   --with-curl \
-  --with-openssl \
+  --with-openssl=$(brew --prefix openssl) \
   --enable-zip \
   --with-zlib \
   --enable-xml \
@@ -44,26 +45,21 @@ build() {
   --with-xmlrpc \
   --enable-exif \
   --with-gd \
-  --with-jpeg-dir=/usr/local \
-  --with-png-dir=/usr/local \
-  --with-freetype-dir=/usr/local \
-  --with-t1lib=/usr/local \
+  --with-jpeg-dir=$(brew --prefix jpeg) \
+  --with-png-dir=$(brew --prefix libpng) \
+  --with-freetype-dir=$(brew --prefix freetype) \
   --with-ttf \
   --enable-gd-native-ttf \
   --enable-gd-jis-conv \
-  --with-kerberos=/usr \
   --with-mcrypt \
-  --with-mysqli='/usr/local/mysql/bin/mysql_config' \
-  --with-mysql='/usr/local/mysql' \
-  --with-pgsql=/usr/local/postgresql \
+  --with-mysqli=$(brew --prefix mysql)/bin/mysql_config \
+  --with-mysql=$(brew --prefix mysql) \
+  --with-pgsql=$(brew --prefix postgresql) \
   --enable-pdo \
-  --with-pdo-mysql='/usr/local/mysql' \
-  --with-pdo-pgsql=/usr/local/postgresql \
+  --with-pdo-mysql=$(brew --prefix mysql) \
+  --with-pdo-pgsql=$(brew --prefix postgresql) \
   --enable-sqlite-utf8 \
   && make all
-
-  # # --disable-phar \
-
 
 }
 
