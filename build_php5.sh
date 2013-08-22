@@ -31,6 +31,7 @@ build() {
   --enable-cli \
   --enable-mbstring \
   --enable-mbregex \
+  --with-pcre-regex \
   --enable-zend-multibyte \
   --with-iconv-dir=/usr/lib \
   --enable-sockets \
