@@ -16,12 +16,12 @@ case $1 in
     exit 1
   ;;
   goa)
-    play 'http://voxsc1.somafm.com:8850' 'Suburbs of Goa'
+    play 'http://uwstream2.somafm.com:8854' 'Suburbs of Goa'
   ;;
   jazz)
-    play 'http://voxsc1.somafm.com:8600' 'Sonic Universe'
+    play 'http://xstream1.somafm.com:8606' 'Sonic Universe'
   ;;
   *)
-    play 'http://streamer-ntc-aa06.somafm.com:80/stream/1073' 'indie pop rocks'
+    play 'http://xstream1.somafm.com:8070' 'indie pop rocks'
   ;;
 esac
