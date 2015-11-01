@@ -1,0 +1,12 @@
+#! /bin/sh
+if [ $# -ne 2 ]; then
+  echo "Usage:"
+  echo "git wip branch-name commit-message"
+  exit 2
+fi
+
+git checkout master
+git pull origin master
+git checkout -b $1
+git commit --allow-empty -m "[WIP] $2"
+git push --set-upstream origin $1
