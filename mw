@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+
+#
+# PandocでMarkdownからWord ファイルを作成
+#
+# テンプレートを使った docx ファイルの作成方法
+# http://www.minimalab.com/blog/2016/08/16/convert-md-to-docx/
+
+usage() {
+  cat << EOF
+Usage:
+  $0 target.md
+EOF
+  exit 1
+}
+if [ $# -ne 1 ]; then
+  usage
+fi
+
+
+target="$1"
+ext="${target##*.}"
+if [ $ext != "md" ]; then
+  usage
+fi
+
+CWD=$(pwd)
+name="${target%.*}"
+
+pandoc "${CWD}/${target}" --reference-docx="${HOME}/bin/word/ref.docx" -s -o "${CWD}/${name}.docx"
